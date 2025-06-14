@@ -1,0 +1,18 @@
+[project]
+name = "CGC"
+version = "1.2"
+description = "Capital Gain Analyzer for AIS's Trade Data"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Krishna Noutiyal"}
+]
+dependencies = [
+  "flet", "openpyxl", "pandas", "toml"
+]
+
+[tool.flet]
+product = "CGC"
+company = "Pooja ITR Center"
+copyright = "Copyright (C) 2025 Pooja ITR Center"
+
