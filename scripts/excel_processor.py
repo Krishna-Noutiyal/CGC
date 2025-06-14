@@ -78,7 +78,7 @@ class ExcelProcessor:
         """
         Create an Excel file with the given file name and write the DataFrame to it.
         """
-        print(f"Creating Excel file at {file_path}...")
+        # print(f"Creating Excel file at {file_path}...")
 
         try:
             self._create_workbook(file_path)
@@ -97,7 +97,7 @@ class ExcelProcessor:
             """ ##################### FORMATING CELLS ##################### """
             # Creating Dashboard similar to Dashboardv2.xlsx in the Dashboards folder
 
-            print("Formatting cells...")
+            # print("Formatting cells...")
 
             ws = self.worksheet
 
@@ -187,7 +187,7 @@ class ExcelProcessor:
             # Long Term Grand Total
             ws.write(9, 0, "Grand Total", formats["green_h"])
 
-            print("Calculating values...")
+            # print("Calculating values...")
 
             """ ##################### CALCULATING VALUES ##################### """
             before_23 = self.df[
@@ -235,7 +235,7 @@ class ExcelProcessor:
                 coa_long_Before_23 + coa_long_After_23
             )
 
-            print("Inserting data into the worksheet...")
+            # print("Inserting data into the worksheet...")
 
             """ ##################### INSERTING DATA INTO THE WORKSHEET ##################### """
 
@@ -381,11 +381,12 @@ class ExcelProcessor:
 
             # self.worksheet.activate()
             self.workbook.close()
-            print(f"Excel file created successfully at {file_path}")
+            # print(f"Excel file created successfully at {file_path}")
 
             return True
         except Exception as e:
-            print(f"Error creating Excel file: {str(e)}")
+            
+            # print(f"Error creating Excel file: {str(e)}")
             return False
 
 
@@ -399,8 +400,8 @@ if __name__ == "__main__":
     print("Files found:", file_list)
 
     # Example usage of combine_csvs with the found files
-    df = test.combine_csvs(file_list)
+    # df = test.combine_csvs(file_list)
 
-    summary = ExcelProcessor(df=df)
+    # summary = ExcelProcessor(df=df)
 
-    summary.Make_Excel("short_sale_calculator/test/Capital_Gains_Summary.xlsx")
+    # summary.Make_Excel("short_sale_calculator/test/Capital_Gains_Summary.xlsx")

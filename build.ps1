@@ -1,6 +1,6 @@
 # Enable ANSI escape codes in PowerShell
 $esc = [char]27
-$version = "1.2.0"
+$version = "1.2.1"
 
 function Write-Info($msg) {
     Write-Host "$esc[1;34m[INFO]$esc[0m $msg"
