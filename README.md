@@ -21,16 +21,33 @@ To use CGC, you need to download your **Trade Data** from the [E-Filing Portal](
 
 ---
 
-## 🖼️ Interface Preview
+## 📷 Interface Preview
+
+### Crypto Capital Gain Dashboard
+
+This is how the generated dashboard will look like:
+
+<p align="center">
+  <img src="./assets/dashboard.png" alt="CryptoAIS Dashboard" width="600"><br>
+  <strong>CryptoAIS Dashboard</strong>
+</p>
 
 ### Application UI
 
-![CGC Interface](./assets/interface.png)
+What you will see when you open the software:
+<p align="center">
+  <img src="./assets/interface.png" alt="CGC Interface" width="600"><br>
+  <strong>CGC Interface</strong>
+</p>
 
 ### Installer
 
-A sleek modern installer provides a rich installation experience.
-![Installing CGC](./assets/installer.png)
+A sleek modern installer provides a rich installation experience:
+
+<p align="center">
+  <img src="./assets/installer.png" alt="Installing CGC" width="600"><br>
+  <strong>Installing CGC</strong>
+</p>
 
 ---
 
