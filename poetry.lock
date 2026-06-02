@@ -70,6 +70,21 @@ desktop = ["flet-desktop (==0.85.2)"]
 web = ["flet-web (==0.85.2)", "flet-web (==0.85.2)"]
 
 [[package]]
+name = "flet-desktop"
+version = "0.85.2"
+description = "Flet Desktop client in Flutter"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "flet_desktop-0.85.2-py3-none-any.whl", hash = "sha256:1f2aff2c66b4ed7360b3c4145aaaa9ce717ede29045159fcce66361909923fe8"},
+    {file = "flet_desktop-0.85.2.tar.gz", hash = "sha256:55dcb9afa90308b395dc488b3e59b89e6282eabe03fa5ceb294d62869826622b"},
+]
+
+[package.dependencies]
+flet = "0.85.2"
+
+[[package]]
 name = "h11"
 version = "0.16.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -521,4 +536,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11"
-content-hash = "200735d2bc22567bf15a32cee33c54a8c6992a59c2e79c0fe5ced29c785de05a"
+content-hash = "da842ef1cf87433dfa11c58afab13c1112e8e9449c009074654eb662f15f654a"
