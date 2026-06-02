@@ -1,0 +1,29 @@
+[project]
+name = "cgc"
+version = "1.2.0"
+description = "Capital Gain Analyzer for AIS's Trade Data"
+authors = [
+    {name = "Krishna Noutiyal",email = "mail@krishnanoutiyal.in"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "flet (>=0.85.2,<0.86.0)",
+    "openpyxl (>=3.1.5,<4.0.0)",
+    "pandas (>=3.0.3,<4.0.0)",
+    "toml (>=0.10.2,<0.11.0)",
+    "xlsxwriter (>=3.2.9,<4.0.0)"
+]
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.flet]
+product = "CGC"
+company = "Pooja ITR Center"
+copyright = "Copyright (C) 2026 Pooja ITR Center"
