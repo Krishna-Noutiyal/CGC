@@ -92,8 +92,15 @@ class ExcelProcessor:
                 ),
                 "alignment": center_wrap,
             },
+            "red_hh": {
+                "font": Font(bold=True, size=18),
+                "fill": PatternFill(
+                    start_color="FF7979", end_color="FF7979", fill_type="solid"
+                ),
+                "alignment": center_wrap,
+            },
             "green_h": {
-                "font": Font(size=16),
+                "font": Font(bold=True, size=16),
                 "fill": PatternFill(
                     start_color="00B050", end_color="00B050", fill_type="solid"
                 ),
@@ -101,6 +108,13 @@ class ExcelProcessor:
             },
             "grey_h": {
                 "font": Font(bold=True, size=18),
+                "fill": PatternFill(
+                    start_color="DAE9F8", end_color="DAE9F8", fill_type="solid"
+                ),
+                "alignment": center_wrap,
+            },
+            "grey_hh": {
+                "font": Font(bold=True, size=26),
                 "fill": PatternFill(
                     start_color="DAE9F8", end_color="DAE9F8", fill_type="solid"
                 ),
@@ -197,7 +211,7 @@ class ExcelProcessor:
             """ ##################### CALCULATING VALUES ##################### """
 
             short_term = self.df[self.df["Asset Type"] == "Short term"]
-            long_term = self.df[self.df["Asset Type"] == "Short term"]
+            long_term = self.df[self.df["Asset Type"] == "Long term"]
 
             fvc_short_term = short_term[
                 "Sales Consideration - Reported by Source"
@@ -210,11 +224,13 @@ class ExcelProcessor:
             pnl_short = fvc_short_term - coa_short_term
             pnl_long = fvc_long_term - coa_long_term
 
+            pnl_overall = pnl_short + pnl_long
+
             """ ##################### INSERTING DATA INTO THE WORKSHEET ##################### """
 
             # Creating Formated Cells for Short Term Profit/Loss
             ws.merge_cells("C2:D2")
-            if fvc_short_term - coa_short_term < 0:
+            if pnl_short < 0:
                 ws["C2"] = "Short Term Loss"
                 self._apply_style(ws["C2"], formats["red_h"])
             else:
@@ -223,7 +239,7 @@ class ExcelProcessor:
 
             # Creating Formated Cells for Long TermProfit/Loss
             ws.merge_cells("C5:D5")
-            if fvc_short_term - coa_short_term < 0:
+            if pnl_long < 0:
                 ws["C5"] = "Long Term Loss"
                 self._apply_style(ws["C5"], formats["red_h"])
             else:
@@ -280,8 +296,13 @@ class ExcelProcessor:
 
             # Row 11: Overall Profit/Loss
             ws.merge_cells("A8:B8")
-            ws["A8"] = "Overall Profit/Loss"
-            self._apply_style(ws["A8"], formats["grey_h"])
+
+            if pnl_overall < 0:
+                ws["A8"] = "Overall Loss"
+                self._apply_style(ws["A8"], formats["red_h"])
+            else:
+                ws["A8"] = "Overall Profit"
+                self._apply_style(ws["A8"], formats["green_h"])
 
             ws.merge_cells("C8:F8")
             ws["C8"] = "=C3+C6"
