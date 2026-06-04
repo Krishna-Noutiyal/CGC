@@ -1,391 +1,350 @@
 from scripts.csv_processor import CSVProcessor
 import glob, os
 import pandas as pd
-from dataclasses import dataclass
-import xlsxwriter
-from xlsxwriter.utility import xl_col_to_name
+from dataclasses import dataclass, field
+from openpyxl import Workbook
+from openpyxl.cell.cell import Cell, MergedCell
+from openpyxl.worksheet.worksheet import Worksheet
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.cell.rich_text import CellRichText, TextBlock
+from openpyxl.cell.text import InlineFont
+from openpyxl.utils import get_column_letter
 
 
 @dataclass
 class ExcelProcessor:
 
     df: pd.DataFrame
+    workbook: Workbook | None = field(default=None, init=False)
+    worksheet: Worksheet | None = field(default=None, init=False)
+
+    # --- Internal helpers -------------------------------------------------
 
     def _create_workbook(self, file_name: str) -> None:
         """
-        Create an Excel workbook with the given file name.
+        Create an Excel workbook at the given file path.
         """
-        self.workbook = xlsxwriter.Workbook(file_name)
+        self.workbook = Workbook()
+        # Remove the default sheet created by openpyxl; we'll add our own.
+        # Use ``self.workbook["Sheet"]`` (the default-sheet name) rather than
+        # ``self.workbook.active`` so Pylance knows it's a real worksheet and
+        # not a possibly-None chartsheet-like handle.
+        self.workbook.remove(self.workbook["Sheet"])
 
     def _create_worksheet(self, sheet_name: str) -> None:
         """
         Create a worksheet in the workbook with the given sheet name.
         """
-        self.worksheet = self.workbook.add_worksheet(sheet_name)
+        if self.workbook is None:
+            raise RuntimeError("_create_workbook() must be called first")
+        self.worksheet = self.workbook.create_sheet(sheet_name)
+
+    def _ws(self) -> Worksheet:
+        """
+        Return the active worksheet, asserting it has been created. This
+        helps static type-checkers narrow ``Worksheet | None`` to ``Worksheet``.
+        """
+        if self.worksheet is None:
+            raise RuntimeError("Worksheet has not been created yet")
+        return self.worksheet
 
     def _add_formats(self) -> dict:
         """
-        Add multiple formats to the workbook and return them as a dictionary.
-        The formatting is for dark mode excel sheets.
+        Build a dictionary of named cell styles. Each value is a dict of
+        openpyxl style components (font / fill / alignment / ...) that can
+        be applied to a cell via ``_apply_style``.
         """
-        base_format = {"align": "center", "valign": "vcenter", "text_wrap": True}
-        formats = {
-            "super": self.workbook.add_format(
-                {
-                    **base_format,
-                    "font_script": 1,
-                }
-            ),
-            "blank": self.workbook.add_format(
-                {
-                    **base_format,
-                    "font_size": 14,
-                }
-            ),
-            "orange_h": self.workbook.add_format(
-                {**base_format, "bold": True, "bg_color": "#E97132", "font_size": 18}
-            ),
-            "blue_h": self.workbook.add_format(
-                {**base_format, "bg_color": "#4D93D9", "font_size": 16}
-            ),
-            "dblue_h": self.workbook.add_format(
-                {**base_format, "bg_color": "#83CCEB", "font_size": 16}
-            ),
-            "red_h": self.workbook.add_format(
-                {**base_format, "bg_color": "#FF7979", "font_size": 16}
-            ),
-            "green_h": self.workbook.add_format(
-                {**base_format, "bg_color": "#00B050", "font_size": 16}
-            ),
-            "grey_h": self.workbook.add_format(
-                {**base_format, "bold": True, "bg_color": "#DAE9F8", "font_size": 18}
-            ),
-            "black_h": self.workbook.add_format(
-                {**base_format, "bold": True, "font_size": 26}
-            ),
+        center_wrap = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        return {
+            "blank": {
+                "font": Font(size=14),
+                "alignment": center_wrap,
+            },
+            "blank": {
+                "font": Font(size=14),
+                "alignment": center_wrap,
+            },
+            "orange_h": {
+                "font": Font(bold=True, size=18),
+                "fill": PatternFill(
+                    start_color="E97132", end_color="E97132", fill_type="solid"
+                ),
+                "alignment": center_wrap,
+            },
+            "blue_h": {
+                "font": Font(size=16),
+                "fill": PatternFill(
+                    start_color="4D93D9", end_color="4D93D9", fill_type="solid"
+                ),
+                "alignment": center_wrap,
+            },
+            "dblue_h": {
+                "font": Font(size=16),
+                "fill": PatternFill(
+                    start_color="83CCEB", end_color="83CCEB", fill_type="solid"
+                ),
+                "alignment": center_wrap,
+            },
+            "red_h": {
+                "font": Font(bold=True, size=16),
+                "fill": PatternFill(
+                    start_color="FF7979", end_color="FF7979", fill_type="solid"
+                ),
+                "alignment": center_wrap,
+            },
+            "green_h": {
+                "font": Font(size=16),
+                "fill": PatternFill(
+                    start_color="00B050", end_color="00B050", fill_type="solid"
+                ),
+                "alignment": center_wrap,
+            },
+            "grey_h": {
+                "font": Font(bold=True, size=18),
+                "fill": PatternFill(
+                    start_color="DAE9F8", end_color="DAE9F8", fill_type="solid"
+                ),
+                "alignment": center_wrap,
+            },
+            "black_h": {
+                "font": Font(bold=True, size=26),
+                "alignment": center_wrap,
+            },
         }
-        return formats
+
+    @staticmethod
+    def _apply_style(cell: Cell | MergedCell, style: dict) -> None:
+        """
+        Apply a style dict (with optional font / fill / alignment / border /
+        number_format keys) to a cell. The parameter is typed as
+        ``Cell | MergedCell`` so the helper works on regular cells and on
+        cells that have become part of a merged range.
+        """
+        if "font" in style:
+            cell.font = style["font"]
+        if "fill" in style:
+            cell.fill = style["fill"]
+        if "alignment" in style:
+            cell.alignment = style["alignment"]
+        if "border" in style:
+            cell.border = style["border"]
+        if "number_format" in style:
+            cell.number_format = style["number_format"]
 
     def _set_cell_dimensions(self, width: float = 34.5, height: float = 48.3) -> None:
         """
-        Set the width and height for all columns and rows in the worksheet.
+        Set the default row height and column widths for the active worksheet.
         """
-        # Set default column width and row height for the worksheet
-        self.worksheet.set_default_row(height)
-        self.worksheet.set_column(0, self.df.shape[1] - 1, width)
+        ws = self._ws()
+        ws.sheet_format.defaultRowHeight = height
+        for col_idx in range(1, self.df.shape[1] + 1):
+            ws.column_dimensions[get_column_letter(col_idx)].width = width
+
+    # --- Public API --------------------------------------------------------
 
     def Make_Excel(self, file_path: str) -> bool:
         """
-        Create an Excel file with the given file name and write the DataFrame to it.
+        Create an Excel file at ``file_path`` containing the Capital Gains
+        dashboard and the raw DataFrame data.
         """
-        # print(f"Creating Excel file at {file_path}...")
-
         try:
             self._create_workbook(file_path)
 
             """ ##################### Capital Gains Dashboard ##################### """
-
             self._create_worksheet("Capital Gains")
-            # Set cell dimensions for the data worksheet
             self._set_cell_dimensions()
-
             formats = self._add_formats()
+            ws = self._ws()
 
-            # Set cell dimensions
-            self._set_cell_dimensions()
+            # Set explicit row height for the dashboard rows (1..12) so it
+            # matches the original xlsxwriter ``set_default_row(48.3)`` look.
+            for row_idx in range(1, 13):
+                ws.row_dimensions[row_idx].height = 48.3
 
-            """ ##################### FORMATING CELLS ##################### """
-            # Creating Dashboard similar to Dashboardv2.xlsx in the Dashboards folder
+            """ ##################### FORMATTING CELLS ##################### """
+            # Excel cell addresses are 1-indexed. Row 1 is the topmost row.
 
-            # print("Formatting cells...")
+            # Row 1: SHORT TERM banner (B1:F1)
+            ws.merge_cells("A1:D1")
+            ws["A1"] = "SHORT TERM"
+            self._apply_style(ws["A1"], formats["orange_h"])
 
-            ws = self.worksheet
+            # Row 2: Short Term column headers
+            ws["A2"] = "Full Value of Consideration"
+            self._apply_style(ws["A2"], formats["blue_h"])
+            ws["B2"] = "Cost of Acquisition"
+            self._apply_style(ws["B2"], formats["dblue_h"])
 
-            # Border format for the cells
-            # This is used to create a border around the cells
-            # border_format = self.workbook.add_format({'border': 1})
-            # for row in range(12):
-            #     for col in range(6):
-            #         ws.write_blank(row, col, None, border_format)
+            ws.merge_cells("E1:F1")
+            ws["E1"] = "Short Term Tax"
+            self._apply_style(ws["E1"], formats["grey_h"])
 
-            # Row and column starts from 0 insted of 1
+            # Row 6: LONG TERM banner
+            ws.merge_cells("A4:D4")
+            ws["A4"] = "LONG TERM"
+            self._apply_style(ws["A4"], formats["orange_h"])
 
-            # This is the 1st row
-            ws.merge_range(0, 1, 0, 5, "SHORT TERM", formats["orange_h"])
-            # This is the 2nd row
-            ws.write(1, 1, "Full Value of Consideration", formats["blue_h"])
-            ws.write(1, 2, "Cost of Acquisition", formats["dblue_h"])
-            ws.write(1, 3, "Tax", formats["red_h"])
-            ws.merge_range(1, 4, 1, 5, "Short Term Tax", formats["grey_h"])
+            # Row 7: Long Term column headers
+            ws["A5"] = "Full Value of Consideration"
+            self._apply_style(ws["A5"], formats["blue_h"])
+            ws["B5"] = "Cost of Acquisition"
+            self._apply_style(ws["B5"], formats["dblue_h"])
 
-            # Short Term Before 23rd July 2024
-            # Create a superscript "rd" only, rest normal
-            ws.write_rich_string(
-                2,
-                0,
-                formats["blue_h"],
-                "Before 23",
-                formats["super"],
-                "rd",
-                formats["blue_h"],
-                " July 2024",
-                formats["blue_h"],
-            )
-
-            # Short Term After 23rd July 2024
-            # Create a superscript "rd" only, rest normal
-            ws.write_rich_string(
-                3,
-                0,
-                formats["dblue_h"],
-                "After 23",
-                formats["super"],
-                "rd",
-                formats["dblue_h"],
-                " July 2024",
-                formats["dblue_h"],
-            )
-
-            # Short Term Grand Total
-            ws.write(4, 0, "Grand Total", formats["green_h"])
-
-            # Long Term Section
-            ws.merge_range(5, 1, 5, 5, "LONG TERM", formats["orange_h"])
-            ws.write(6, 1, "Full Value of Consideration", formats["blue_h"])
-            ws.write(6, 2, "Cost of Acquisition", formats["dblue_h"])
-            ws.write(6, 3, "Tax", formats["red_h"])
-            ws.merge_range(6, 4, 6, 5, "Long Term Tax", formats["grey_h"])
-
-            # Long Term Before 23rd July 2024
-            # Create a superscript "rd" only, rest normal
-            ws.write_rich_string(
-                7,
-                0,
-                formats["blue_h"],
-                "Before 23",
-                formats["super"],
-                "rd",
-                formats["blue_h"],
-                " July 2024",
-                formats["blue_h"],
-            )
-
-            # Long Term After 23rd July 2024
-            # Create a superscript "rd" only, rest normal
-            ws.write_rich_string(
-                8,
-                0,
-                formats["dblue_h"],
-                "After 23",
-                formats["super"],
-                "rd",
-                formats["dblue_h"],
-                " July 2024",
-                formats["dblue_h"],
-            )
-
-            # Long Term Grand Total
-            ws.write(9, 0, "Grand Total", formats["green_h"])
-
-            # print("Calculating values...")
+            ws.merge_cells("E4:F4")
+            ws["E4"] = "Long Term Tax"
+            self._apply_style(ws["E4"], formats["grey_h"])
 
             """ ##################### CALCULATING VALUES ##################### """
-            before_23 = self.df[
-                self.df["Date of Sale/Transfer"] < pd.to_datetime("2024-07-23")
-            ]
-            after_23 = self.df[
-                self.df["Date of Sale/Transfer"] >= pd.to_datetime("2024-07-23")
-            ]
 
-            # Filter for "Short term" asset type before and after 23rd July 2024
-            short_before_23 = before_23[before_23["Asset Type"] == "Short term"]
-            short_after_23 = after_23[after_23["Asset Type"] == "Short term"]
+            short_term = self.df[self.df["Asset Type"] == "Short term"]
+            long_term = self.df[self.df["Asset Type"] == "Short term"]
 
-            # Filter for "Long term" asset type before and after 23rd July 2024
-            long_before_23 = before_23.drop(short_before_23.index)
-            long_after_23 = after_23.drop(short_after_23.index)
-
-            fvc_sort_Before_23 = short_before_23[
+            fvc_short_term = short_term[
                 "Sales Consideration - Reported by Source"
             ].sum()
-            fvc_sort_After_23 = short_after_23[
-                "Sales Consideration - Reported by Source"
-            ].sum()
-            fvc_long_Before_23 = long_before_23[
-                "Sales Consideration - Reported by Source"
-            ].sum()
-            fvc_long_After_23 = long_after_23[
-                "Sales Consideration - Reported by Source"
-            ].sum()
-            fvc_long_After_23 = long_after_23[
-                "Sales Consideration - Reported by Source"
-            ].sum()
+            fvc_long_term = long_term["Sales Consideration - Reported by Source"].sum()
 
-            coa_short_Before_23 = short_before_23["Cost of Acquisition"].sum()
-            coa_short_After_23 = short_after_23["Cost of Acquisition"].sum()
-            coa_long_Before_23 = long_before_23["Cost of Acquisition"].sum()
-            coa_long_After_23 = long_after_23["Cost of Acquisition"].sum()
+            coa_short_term = short_term["Cost of Acquisition"].sum()
+            coa_long_term = long_term["Cost of Acquisition"].sum()
 
-            # Profit/Loss calculations in short and long term
-            # Short term profit/loss is calculated as Full Value of Consideration - Cost of Acquisition
-            pnl_short = (fvc_sort_Before_23 + fvc_sort_After_23) - (
-                coa_short_Before_23 + coa_short_After_23
-            )
-            pnl_long = (fvc_long_Before_23 + fvc_long_After_23) - (
-                coa_long_Before_23 + coa_long_After_23
-            )
-
-            # print("Inserting data into the worksheet...")
+            pnl_short = fvc_short_term - coa_short_term
+            pnl_long = fvc_long_term - coa_long_term
 
             """ ##################### INSERTING DATA INTO THE WORKSHEET ##################### """
 
+            # Creating Formated Cells for Short Term Profit/Loss
+            ws.merge_cells("C2:D2")
+            if fvc_short_term - coa_short_term < 0:
+                ws["C2"] = "Short Term Loss"
+                self._apply_style(ws["C2"], formats["red_h"])
+            else:
+                ws["C2"] = "Short Term Profit"
+                self._apply_style(ws["C2"], formats["green_h"])
+
+            # Creating Formated Cells for Long TermProfit/Loss
+            ws.merge_cells("C5:D5")
+            if fvc_short_term - coa_short_term < 0:
+                ws["C5"] = "Long Term Loss"
+                self._apply_style(ws["C5"], formats["red_h"])
+            else:
+                ws["C5"] = "Long Term Profit"
+                self._apply_style(ws["C5"], formats["green_h"])
+
             """ ##################### SHORT TERM VALUES ##################### """
-            # Short Term Before 23rd July 2024 Values
-            ws.write_number(2, 1, fvc_sort_Before_23, formats["blank"])
-            ws.write_number(2, 2, coa_short_Before_23, formats["blank"])
-            ws.write_formula(
-                2, 3, "=IF(B3-C3>=0,ROUND((B3-C3)*15%,0),0)", formats["blank"]
-            )
 
-            # Short Term After 23rd July 2024 Values
-            ws.write_number(3, 1, fvc_sort_After_23, formats["blank"])
-            ws.write_number(3, 2, coa_short_After_23, formats["blank"])
-            ws.write_formula(
-                3, 3, "=IF(B4-C4>=0,ROUND((B4-C4)*20%,0),0)", formats["blank"]
-            )
+            # Row 3: Short Term values
+            ws["A3"] = fvc_short_term
+            self._apply_style(ws["A3"], formats["blank"])
+            ws["B3"] = coa_short_term
+            self._apply_style(ws["B3"], formats["blank"])
 
-            # Short Term Grand Total Values
-            ws.write_formula(4, 1, "=SUM(B3:B4)", formats["green_h"])
-            ws.write_formula(4, 2, "=SUM(C3:C4)", formats["green_h"])
-            ws.write_formula(4, 3, "=SUM(D3:D4)", formats["green_h"])
+            # Short Term Profit/Loss
+            ws.merge_cells("C3:D3")
+            ws["C3"] = "=A3-B3"
+            self._apply_style(ws["C3"], formats["black_h"])
 
-            # Short Term Tax
-            ws.merge_range(2, 4, 4, 5, "=D5", formats["black_h"])
+            # Short Term Tax (E2:F3 merged)
+            ws.merge_cells("E2:F3")
+            ws["E2"] = "=IF(C3*0.2<0,0,C3*0.2)"
+            self._apply_style(ws["E2"], formats["black_h"])
 
             """ ##################### LONG TERM VALUES ##################### """
 
-            # long Term Before 23rd July 2024 Values
-            ws.write_number(7, 1, fvc_long_Before_23, formats["blank"])
-            ws.write_number(7, 2, coa_long_Before_23, formats["blank"])
-            ws.write_formula(
-                7,
-                3,
-                "=IF(B8-C8>100000,ROUND(((B8-C8)-100000)*10%,0),0)",
-                formats["blank"],
-            )
+            # Row 8: Long Term values
+            ws["A6"] = fvc_long_term
+            self._apply_style(ws["A6"], formats["blank"])
+            ws["B6"] = coa_long_term
+            self._apply_style(ws["B6"], formats["blank"])
 
-            # long Term After 23rd July 2024 Values
-            ws.write_number(8, 1, fvc_long_After_23, formats["blank"])
-            ws.write_number(8, 2, coa_long_After_23, formats["blank"])
-            ws.write_formula(
-                8,
-                3,
-                "=IF(B9-C9>125000,ROUND(((B9-C9)-125000)*12.5%,0),0)",
-                formats["blank"],
-            )
+            # Long Term Profit/Loss
+            ws.merge_cells("C6:D6")
+            ws["C6"] = "=A6-B6"
+            self._apply_style(ws["C6"], formats["black_h"])
 
-            # long Term Grand Total Values
-            ws.write_formula(9, 1, "=SUM(B8:B9)", formats["green_h"])
-            ws.write_formula(9, 2, "=SUM(C8:C9)", formats["green_h"])
-            ws.write_formula(9, 3, "=SUM(D8:D9)", formats["green_h"])
-
-            # long Term Tax
-            ws.merge_range(7, 4, 9, 5, "=D10", formats["black_h"])
+            # Long Term Tax (E5:F7 merged)
+            ws.merge_cells("E5:F6")
+            ws["E5"] = "=IF(C6<=125000,0,(C6-125000)*0.125)"
+            self._apply_style(ws["E5"], formats["black_h"])
 
             """ ##################### GRAND TOTAL OF TAX ##################### """
+            # Row 11: Grand Total Tax
+            ws.merge_cells("A7:B7")
+            ws["A7"] = "Total Tax"
+            self._apply_style(ws["A7"], formats["grey_h"])
 
-            # Grand Total Tax at bottom
-            ws.merge_range(10, 0, 10, 1, "Total Tax", formats["grey_h"])
-            ws.merge_range(10, 2, 10, 4, "=SUM(E3,E8)", formats["black_h"])
+            ws.merge_cells("C7:F7")
+            ws["C7"] = "=SUM(E2,E5)"
+            self._apply_style(ws["C7"], formats["black_h"])
 
-            """ ##################### Short n Long Term Profit/Loss ##################### """
+            """ ##################### Overall Profit & Loss ##################### """
 
-            # Write the Short Term and Long Term Profit/Loss at the bottom
-            if pnl_short >= 0:
-                ws.write(11, 0, "Short Term Profit", formats["green_h"])
-            elif pnl_short < 0:
-                ws.write(11, 0, "Short Term Loss", formats["red_h"])
+            # Row 11: Overall Profit/Loss
+            ws.merge_cells("A8:B8")
+            ws["A8"] = "Overall Profit/Loss"
+            self._apply_style(ws["A8"], formats["grey_h"])
 
-            if pnl_long >= 0:
-                ws.write(11, 3, "Long Term Profit", formats["green_h"])
-            elif pnl_long < 0:
-                ws.write(11, 3, "Long Term Loss", formats["red_h"])
-
-            # Write the values of Short Term and Long Term Profit/Loss
-            ws.merge_range(11, 1, 11, 2, "=B5-C5", formats["black_h"])
-            ws.merge_range(11, 4, 11, 5, "=B10-C10", formats["black_h"])
+            ws.merge_cells("C8:F8")
+            ws["C8"] = "=C3+C6"
+            self._apply_style(ws["C8"], formats["red_h"])
 
             """ ##################### Capital Gains Data ##################### """
-
             # Create a new worksheet for the raw DataFrame
             self._create_worksheet("Capital Gains Data")
-
-            # Set cell dimensions for the data worksheet
-            self._set_cell_dimensions()
-            data_ws = self.worksheet
+            self._set_cell_dimensions(width=26)
+            data_ws = self._ws()
             data_formats = self._add_formats()
 
-            # Set header row height and column widths
-            data_ws.set_row(0, 55)
-            data_ws.set_column(0, self.df.shape[1] - 1, 26)
-            # Set data row heights (from row 1 onwards)
-            for row_num in range(1, len(self.df) + 2):  # +2 to include totals row
-                data_ws.set_row(row_num, 30)
+            # Header row height
+            data_ws.row_dimensions[1].height = 55
 
-                # Write the header with formatting (font size 16)
-                header_format = self.workbook.add_format(
-                    {
-                        **{
-                            "align": "center",
-                            "valign": "vcenter",
-                            "text_wrap": True,
-                            "bold": True,
-                            "bg_color": "#E97132",
-                            "font_size": 16,
-                        }
-                    }
-                )
-                for col_num, col_name in enumerate(self.df.columns):
-                    data_ws.write(0, col_num, col_name, header_format)
+            # Write the header
+            header_format: dict = {
+                "font": Font(bold=True, size=16),
+                "fill": PatternFill(
+                    start_color="E97132", end_color="E97132", fill_type="solid"
+                ),
+                "alignment": Alignment(
+                    horizontal="center", vertical="center", wrap_text=True
+                ),
+            }
+            for col_num, col_name in enumerate(self.df.columns, start=1):
+                cell = data_ws.cell(row=1, column=col_num, value=col_name)
+                self._apply_style(cell, header_format)
 
             # Write the data rows
-            for row_num, row in enumerate(self.df.itertuples(index=False), start=1):
-                for col_num, value in enumerate(row):
-                    # Set font size 11 for the first cell (first column, first data row)
-                    if col_num == 0:
-                        fmt = self.workbook.add_format(
-                            {
-                                "align": "center",
-                                "valign": "vcenter",
-                                "text_wrap": True,
-                                "font_size": 11,
-                            }
+            for row_offset, (_, row) in enumerate(self.df.iterrows(), start=2):
+                data_ws.row_dimensions[row_offset].height = 30
+                for col_num, value in enumerate(row, start=1):
+                    cell = data_ws.cell(row=row_offset, column=col_num)
+                    if col_num == 1:
+                        cell.font = Font(size=11)
+                        cell.alignment = Alignment(
+                            horizontal="center", vertical="center", wrap_text=True
                         )
                     else:
-                        fmt = data_formats["blank"]
-                    if isinstance(value, (int, float)):
-                        data_ws.write_number(row_num, col_num, value, fmt)
-                    else:
-                        data_ws.write(row_num, col_num, value, fmt)
+                        self._apply_style(cell, data_formats["blank"])
+                    cell.value = None if pd.isna(value) else value
 
-            # Write totals for numeric columns at the end
-            total_row = len(self.df) + 1
-            for col_num, col_name in enumerate(self.df.columns):
-                col_letter = xl_col_to_name(col_num)
-                formula = f"=SUM({col_letter}2:{col_letter}{len(self.df)+1})"
-                data_ws.write_formula(
-                    total_row, col_num, formula, data_formats["green_h"]
+            # Totals row
+            total_row = len(self.df) + 2
+            data_ws.row_dimensions[total_row].height = 30
+            for col_num, _ in enumerate(self.df.columns, start=1):
+                col_letter = get_column_letter(col_num)
+                cell = data_ws.cell(
+                    row=total_row,
+                    column=col_num,
+                    value=f"=SUM({col_letter}2:{col_letter}{len(self.df) + 1})",
                 )
-            # Write "Total" label in the first column of the totals row
-            data_ws.write(total_row, 0, "Total", data_formats["grey_h"])
+                self._apply_style(cell, data_formats["green_h"])
 
-            # self.worksheet.activate()
-            self.workbook.close()
-            # print(f"Excel file created successfully at {file_path}")
+            # "Total" label in the first column
+            total_label = data_ws.cell(row=total_row, column=1, value="Total")
+            self._apply_style(total_label, data_formats["grey_h"])
 
+            assert self.workbook is not None
+            self.workbook.save(file_path)
             return True
         except Exception as e:
-            
             # print(f"Error creating Excel file: {str(e)}")
             return False
 
