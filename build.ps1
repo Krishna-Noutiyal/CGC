@@ -1,7 +1,9 @@
 # Enable ANSI escape codes in PowerShell
 $esc = [char]27
-$version = "1.2.1"
-
+$pyprojectContent = Get-Content "$PSScriptRoot\pyproject.toml" -Raw
+if ($pyprojectContent -match 'version\s*=\s*"([^"]+)"') {
+    $version = $matches[1]
+}
 function Write-Info($msg) {
     Write-Host "$esc[1;34m[INFO]$esc[0m $msg"
 }
@@ -76,7 +78,7 @@ if ($installReq) {
 Clear-Host
 
 # Step 2: Build the Flet App
-Write-Section "Building Flet Windows Application"
+Write-Section "Building Flet v$version Windows Application"
 
 try {
     flet build windows `
