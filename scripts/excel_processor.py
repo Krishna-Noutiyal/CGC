@@ -60,10 +60,6 @@ class ExcelProcessor:
                 "font": Font(size=14),
                 "alignment": center_wrap,
             },
-            "blank": {
-                "font": Font(size=14),
-                "alignment": center_wrap,
-            },
             "orange_h": {
                 "font": Font(bold=True, size=18),
                 "fill": PatternFill(
@@ -71,14 +67,14 @@ class ExcelProcessor:
                 ),
                 "alignment": center_wrap,
             },
-            "blue_h": {
+            "dblue_h": {
                 "font": Font(size=16),
                 "fill": PatternFill(
                     start_color="4D93D9", end_color="4D93D9", fill_type="solid"
                 ),
                 "alignment": center_wrap,
             },
-            "dblue_h": {
+            "blue_h": {
                 "font": Font(size=16),
                 "fill": PatternFill(
                     start_color="83CCEB", end_color="83CCEB", fill_type="solid"
@@ -101,6 +97,13 @@ class ExcelProcessor:
             },
             "green_h": {
                 "font": Font(bold=True, size=16),
+                "fill": PatternFill(
+                    start_color="00B050", end_color="00B050", fill_type="solid"
+                ),
+                "alignment": center_wrap,
+            },
+            "green_hh": {
+                "font": Font(bold=True, size=18),
                 "fill": PatternFill(
                     start_color="00B050", end_color="00B050", fill_type="solid"
                 ),
@@ -185,9 +188,9 @@ class ExcelProcessor:
 
             # Row 2: Short Term column headers
             ws["A2"] = "Full Value of Consideration"
-            self._apply_style(ws["A2"], formats["blue_h"])
+            self._apply_style(ws["A2"], formats["dblue_h"])
             ws["B2"] = "Cost of Acquisition"
-            self._apply_style(ws["B2"], formats["dblue_h"])
+            self._apply_style(ws["B2"], formats["blue_h"])
 
             ws.merge_cells("E1:F1")
             ws["E1"] = "Short Term Tax"
@@ -200,9 +203,9 @@ class ExcelProcessor:
 
             # Row 7: Long Term column headers
             ws["A5"] = "Full Value of Consideration"
-            self._apply_style(ws["A5"], formats["blue_h"])
+            self._apply_style(ws["A5"], formats["dblue_h"])
             ws["B5"] = "Cost of Acquisition"
-            self._apply_style(ws["B5"], formats["dblue_h"])
+            self._apply_style(ws["B5"], formats["blue_h"])
 
             ws.merge_cells("E4:F4")
             ws["E4"] = "Long Term Tax"
@@ -261,7 +264,7 @@ class ExcelProcessor:
 
             # Short Term Tax (E2:F3 merged)
             ws.merge_cells("E2:F3")
-            ws["E2"] = "=IF(C3*0.2<0,0,C3*0.2)"
+            ws["E2"] = "=ROUNDDOWN(IF(C3*0.2<0,0,C3*0.2),0)"
             self._apply_style(ws["E2"], formats["black_h"])
 
             """ ##################### LONG TERM VALUES ##################### """
@@ -279,14 +282,14 @@ class ExcelProcessor:
 
             # Long Term Tax (E5:F7 merged)
             ws.merge_cells("E5:F6")
-            ws["E5"] = "=IF(C6<=125000,0,(C6-125000)*0.125)"
+            ws["E5"] = "=ROUNDDOWN(IF(C6<=125000,0,(C6-125000)*0.125),0)"
             self._apply_style(ws["E5"], formats["black_h"])
 
             """ ##################### GRAND TOTAL OF TAX ##################### """
             # Row 11: Grand Total Tax
             ws.merge_cells("A7:B7")
             ws["A7"] = "Total Tax"
-            self._apply_style(ws["A7"], formats["grey_h"])
+            self._apply_style(ws["A7"], formats["grey_hh"])
 
             ws.merge_cells("C7:F7")
             ws["C7"] = "=SUM(E2,E5)"
@@ -297,16 +300,17 @@ class ExcelProcessor:
             # Row 11: Overall Profit/Loss
             ws.merge_cells("A8:B8")
 
-            if pnl_overall < 0:
-                ws["A8"] = "Overall Loss"
-                self._apply_style(ws["A8"], formats["red_h"])
-            else:
-                ws["A8"] = "Overall Profit"
-                self._apply_style(ws["A8"], formats["green_h"])
-
             ws.merge_cells("C8:F8")
             ws["C8"] = "=C3+C6"
-            self._apply_style(ws["C8"], formats["red_h"])
+
+            if pnl_overall < 0:
+                ws["A8"] = "Overall Loss"
+                self._apply_style(ws["A8"], formats["red_hh"])
+                self._apply_style(ws["C8"], formats["red_hh"])
+            else:
+                ws["A8"] = "Overall Profit"
+                self._apply_style(ws["A8"], formats["green_hh"])
+                self._apply_style(ws["C8"], formats["green_hh"])
 
             """ ##################### Capital Gains Data ##################### """
             # Create a new worksheet for the raw DataFrame
