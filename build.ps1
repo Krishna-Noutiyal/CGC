@@ -89,7 +89,7 @@ try {
         --build-version $version `
         --company "Pooja ITR Center" `
         --copyright "Copyright (C) 2025 Pooja ITR Center" `
-        --exclude ".git, build.ps1, release, icons, CGC-cache, README.md, certs, test, .gitignore, .vscode, .venv, CGC.aip, updates.txt, requirements.txt, README.md, poetry.lock, Dashboards" `
+        --exclude "archive, assets, .git, build.ps1, release, CGC-cache, README.md, certs, test, .gitignore, .vscode, .venv, CGC.aip, updates.txt, requirements.txt, README.md, poetry.lock, Dashboards" `
         --clear-cache --compile-app --compile-packages --cleanup-app --cleanup-packages --cleanup-app --module-name .\main.py
 
     if ($LASTEXITCODE -eq 0) {

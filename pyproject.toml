@@ -1,6 +1,6 @@
 [project]
 name = "CGC"
-version = "2.0.0"
+version = "2.1.0"
 description = "Capital Gain Analyzer for AIS's Trade Data"
 authors = [
     {name = "Krishna Noutiyal",email = "mail@krishnanoutiyal.in"}
