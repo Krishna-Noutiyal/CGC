@@ -16,7 +16,7 @@ class CSVProcessor:
             "Status",
         ]
 
-    def combine_csvs(self, file_paths: List[str], output_path="./") -> pd.DataFrame:
+    def combine_csvs(self, file_paths: List[str]) -> pd.DataFrame:
         """
         Combines multiple CSV files into a single CSV file.
         Skips the first row and uses the second row as headers.
@@ -28,13 +28,18 @@ class CSVProcessor:
         Returns:
             pd.DataFrame: Combined DataFrame if successful, empty DataFrame otherwise
         """
+
+        if not file_paths:
+            print(f"No CSV Files Provided")
+            exit(1)
+
         try:
             combined_data = []
 
             for i, file_path in enumerate(file_paths):
                 if not os.path.exists(file_path):
                     print(f"Warning: File {file_path} does not exist, skipping...")
-                    continue
+                    exit(1)
 
                 # Read the CSV file, skip the first row and use the second row as header
                 df = pd.read_csv(file_path, skiprows=1)
@@ -78,29 +83,35 @@ class CSVProcessor:
                 combined_data.append(df)
                 print(f"Processed {os.path.basename(file_path)}: {len(df)} data rows")
 
-            if not combined_data:
-                print("No valid CSV files found to combine")
-                return pd.DataFrame()  # Return an empty DataFrame
-
             # Combine all dataframes
             combined_df = pd.concat(combined_data, ignore_index=True)
-            print(combined_df)
+            # print(combined_df)
 
             # Clean up the combined data
             combined_df = combined_df.dropna(how="all")  # Remove completely empty rows
 
-            # Save to output path
-            # combined_df.to_csv(output_path, index=False)
+            combined_df = pd.DataFrame(combined_df).rename(
+                columns={
+                    "Sales Consideration - Reported by Source": "Sales Consideration"
+                }
+            )
 
             # print(f"Successfully combined {len(file_paths)} files into {output_path}")
             print(f"Total data rows: {len(combined_df)}")
             print(f"Total columns: {len(combined_df.columns)}")
 
-            return combined_df
+            self.combined_df = combined_df
+
+            return self.combined_df
 
         except Exception as e:
             print(f"Error combining CSV files: {str(e)}")
             return pd.DataFrame()
+
+    def save(self, output_path: str = "./"):
+
+        # Save to output path
+        self.combined_df.to_csv(output_path, index=False)
 
     def get_csv_info(self, file_path: str) -> dict:
         """
@@ -134,4 +145,5 @@ if __name__ == "__main__":
     print("Files found:", file_list)
 
     # Example usage of combine_csvs with the found files
-    test.combine_csvs(file_list, "./short_sale_calculator/test/combined.csv")
+    test.combine_csvs(file_list)
+    test.save()

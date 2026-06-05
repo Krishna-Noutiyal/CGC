@@ -2,10 +2,10 @@ from scripts.csv_processor import CSVProcessor
 import glob, os
 import pandas as pd
 from dataclasses import dataclass, field
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.cell.cell import Cell, MergedCell
 from openpyxl.worksheet.worksheet import Worksheet
-from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.styles import Font, PatternFill, Alignment, NamedStyle
 from openpyxl.cell.rich_text import CellRichText, TextBlock
 from openpyxl.cell.text import InlineFont
 from openpyxl.utils import get_column_letter
@@ -21,23 +21,27 @@ class ExcelProcessor:
     # --- Internal helpers -------------------------------------------------
 
     def _create_workbook(self, file_name: str) -> None:
-        """
-        Create an Excel workbook at the given file path.
-        """
-        self.workbook = Workbook()
-        # Remove the default sheet created by openpyxl; we'll add our own.
-        # Use ``self.workbook["Sheet"]`` (the default-sheet name) rather than
-        # ``self.workbook.active`` so Pylance knows it's a real worksheet and
-        # not a possibly-None chartsheet-like handle.
-        self.workbook.remove(self.workbook["Sheet"])
+        #     """
+        #     Create an Excel workbook at the given file path.
+        #     """
+        self.workbook = load_workbook(filename=file_name)
 
-    def _create_worksheet(self, sheet_name: str) -> None:
+        # Tries to remove prexisting Capital Gains Calucation sheet
+        # This is in case the user runs the software twice
+        # We don't want to create duplicate worksheets
+        try:
+            self.workbook.remove(self.workbook["Capital Gains"])
+            self.workbook.remove(self.workbook["Capital Gains Data"])
+        except:
+            pass
+
+    def _create_worksheet(self, sheet_name: str, position: int | None = None) -> None:
         """
         Create a worksheet in the workbook with the given sheet name.
         """
         if self.workbook is None:
             raise RuntimeError("_create_workbook() must be called first")
-        self.worksheet = self.workbook.create_sheet(sheet_name)
+        self.worksheet = self.workbook.create_sheet(sheet_name, position)
 
     def _ws(self) -> Worksheet:
         """
@@ -167,8 +171,9 @@ class ExcelProcessor:
         try:
             self._create_workbook(file_path)
 
-            """ ##################### Capital Gains Dashboard ##################### """
-            self._create_worksheet("Capital Gains")
+            """##################### Capital Gains Dashboard #####################"""
+
+            self._create_worksheet("Capital Gains", 0)
             self._set_cell_dimensions()
             formats = self._add_formats()
             ws = self._ws()
@@ -216,10 +221,8 @@ class ExcelProcessor:
             short_term = self.df[self.df["Asset Type"] == "Short term"]
             long_term = self.df[self.df["Asset Type"] == "Long term"]
 
-            fvc_short_term = short_term[
-                "Sales Consideration - Reported by Source"
-            ].sum()
-            fvc_long_term = long_term["Sales Consideration - Reported by Source"].sum()
+            fvc_short_term = short_term["Sales Consideration"].sum()
+            fvc_long_term = long_term["Sales Consideration"].sum()
 
             coa_short_term = short_term["Cost of Acquisition"].sum()
             coa_long_term = long_term["Cost of Acquisition"].sum()
@@ -314,7 +317,7 @@ class ExcelProcessor:
 
             """ ##################### Capital Gains Data ##################### """
             # Create a new worksheet for the raw DataFrame
-            self._create_worksheet("Capital Gains Data")
+            self._create_worksheet("Capital Gains Data", 1)
             self._set_cell_dimensions(width=26)
             data_ws = self._ws()
             data_formats = self._add_formats()
@@ -346,6 +349,11 @@ class ExcelProcessor:
                         cell.alignment = Alignment(
                             horizontal="center", vertical="center", wrap_text=True
                         )
+                    elif col_num == 2:
+                        date_format = data_formats["blank"] | {
+                            "number_format": "dd mmm yyyy"
+                        }
+                        self._apply_style(cell, date_format)
                     else:
                         self._apply_style(cell, data_formats["blank"])
                     cell.value = None if pd.isna(value) else value
@@ -353,6 +361,7 @@ class ExcelProcessor:
             # Totals row
             total_row = len(self.df) + 2
             data_ws.row_dimensions[total_row].height = 30
+
             for col_num, _ in enumerate(self.df.columns, start=1):
                 col_letter = get_column_letter(col_num)
                 cell = data_ws.cell(
