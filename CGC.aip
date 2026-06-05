@@ -5722,7 +5722,7 @@
     <ROW Property="AI_SHORTCUTSREG" Registry="AI_SHORTCUTSREG" HklmSearch="AI_SHORTCUTSREG" HkcuSearch="AI_SHORTCUTSREG_1" Hklm64Search="AI_SHORTCUTSREG_2" Hkcu64Search="AI_SHORTCUTSREG_3"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
-    <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" Options="6" UpdatesUrl="https://api.github.com/repos/Krishna-Noutiyal/CGC/releases"/>
+    <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" Options="6" UpdatesUrl="https://raw.githubusercontent.com/Krishna-Noutiyal/CGC/refs/heads/main/updates.txt"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="249"/>
@@ -6419,7 +6419,7 @@
     <ROW IniFile="ApplicationVersion" FileName="CGCUPD~1.INI|CGC Updater.ini" DirProperty="APPDIR" Section="General" Key="ApplicationVersion" Value="[ProductVersion]" Action="0" Component_="updater.exe"/>
     <ROW IniFile="CheckFrequency" FileName="CGCUPD~1.INI|CGC Updater.ini" DirProperty="APPDIR" Section="General" Key="CheckFrequency" Value="1" Action="0" Component_="updater.exe"/>
     <ROW IniFile="CompanyName" FileName="CGCUPD~1.INI|CGC Updater.ini" DirProperty="APPDIR" Section="General" Key="CompanyName" Value="[Manufacturer]" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="DefaultCommandLine" FileName="CGCUPD~1.INI|CGC Updater.ini" DirProperty="APPDIR" Section="General" Key="DefaultCommandLine" Value="/silent" Action="0" Component_="updater.exe"/>
+    <ROW IniFile="DefaultCommandLine" FileName="CGCUPD~1.INI|CGC Updater.ini" DirProperty="APPDIR" Section="General" Key="DefaultCommandLine" Value="/checknow" Action="0" Component_="updater.exe"/>
     <ROW IniFile="DownloadsFolder" FileName="CGCUPD~1.INI|CGC Updater.ini" DirProperty="APPDIR" Section="General" Key="DownloadsFolder" Value="[AppDataFolder][Manufacturer]\[ProductName]\updates\" Action="0" Component_="updater.exe"/>
     <ROW IniFile="Flags" FileName="CGCUPD~1.INI|CGC Updater.ini" DirProperty="APPDIR" Section="General" Key="Flags" Value="ShowConfigOptionsButton|InstallSummaryAlways|GitHubUpdates" Action="0" Component_="updater.exe"/>
     <ROW IniFile="ID" FileName="CGCUPD~1.INI|CGC Updater.ini" DirProperty="APPDIR" Section="General" Key="ID" Value="[UpgradeCode]" Action="0" Component_="updater.exe"/>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DOCUMENT Type="Advanced Installer" CreateVersion="22.4" version="22.4" Modules="update" RootPath="." Language="sq" Id="{35309601-EDA1-45CA-80F0-A3536F4CB88A}">
+  <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
+    <ROW Path="&lt;AI_DICTS&gt;aiu-ue.ail"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.UpdaterEditorComponent">
+    <ROW Section="Update" Key="Name" Value="CGC"/>
+    <ROW Section="Update" Key="ProductVersion" Value="2.1.0.0" ValueLocId="-"/>
+    <ROW Section="Update" Key="URL" Value="https://github.com/Krishna-Noutiyal/CGC/releases/download/v2.1.0/CGC.v2.1.0.exe" ValueLocId="-"/>
+    <ROW Section="Update" Key="Size" Value="release\CGC v2.1.0.exe" ValueLocId="-"/>
+    <ROW Section="Update" Key="ReleaseDate" Value="23749" ValueLocId="-"/>
+    <ROW Section="Update" Key="SHA256" Value="release\CGC v2.1.0.exe" ValueLocId="-"/>
+    <ROW Section="Update" Key="MD5" Value="release\CGC v2.1.0.exe" ValueLocId="-"/>
+    <ROW Section="Update" Key="ServerFileName" Value="CGC v2.1.0.exe" ValueLocId="-"/>
+    <ROW Section="Update" Key="Flags" Value="Critical|NoCache|Os64" ValueLocId="-"/>
+    <ROW Section="Update" Key="RegistryKey" Value="HKUD\Software\Krish\CGC\Version" ValueLocId="-"/>
+    <ROW Section="Update" Key="Version" Value="2.1.0.0" ValueLocId="-"/>
+    <ROW Section="Update" Key="UpdatedApplications" Value="CGC[1.0-2.1)" ValueLocId="-"/>
+    <ROW Section="Update" Key="AutoCloseApplication" Value="[APPDIR]CGC.exe" ValueLocId="-"/>
+    <ATTRIBUTE name="OutputFileName" value="updates.txt"/>
+    <ATTRIBUTE name="OutputFolder" value="."/>
+  </COMPONENT>
+</DOCUMENT>
