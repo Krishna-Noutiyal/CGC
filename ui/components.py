@@ -24,6 +24,13 @@ class MainView:
 
         self.status_text = ft.Text("", color=ColorScheme.TEXT_SECONDARY, size=14)
 
+        self.progress_bar = ft.ProgressBar(
+            width=300,
+            color=ColorScheme.PRIMARY,
+            bgcolor=ColorScheme.SURFACE,
+            visible=False,
+        )
+
     async def pick_files(self, e: ft.Event[ft.Button]):
         files = await ft.FilePicker().pick_files(
             allow_multiple=True,
@@ -61,11 +68,11 @@ class MainView:
 
     async def on_submit_clicked(self, e: ft.Event[ft.Button]):
         if not self.selected_files:
-            self.show_status("Please Select CSVs !", ColorScheme.ERROR)
+            self.show_status("⚠️ Please Select CSVs !", ColorScheme.ERROR)
             return
 
         if not self.output_path:
-            self.show_status("Please Select Output Path !", ColorScheme.ERROR)
+            self.show_status("⚠️ Please Select Output Path !", ColorScheme.ERROR)
             return
 
         if self.is_processing:
@@ -73,7 +80,8 @@ class MainView:
 
         try:
             self.is_processing = True
-            self.show_status("Processing Files...", ColorScheme.PRIMARY)
+            self.progress_bar.visible = True
+            self.show_status("⏳ Processing Files...", ColorScheme.PRIMARY)
             self.page.update()
 
             # Ensure minimum processing time for UX feedback
@@ -85,16 +93,18 @@ class MainView:
             create_Excel = ExcelProcessor(df=dataframe).Make_Excel(self.output_path)
 
             self.is_processing = False
+            self.progress_bar.visible = False
 
             if create_Excel:
                 self.show_status(
-                    "Excel File Created Successfully !", ColorScheme.SUCCESS
+                    "✅ Excel File Created Successfully !", ColorScheme.SUCCESS
                 )
             else:
-                self.show_status("Error Processing Files !", ColorScheme.ERROR)
+                self.show_status("❌ Error Processing Files !", ColorScheme.ERROR)
         except Exception as ex:
             self.is_processing = False
-            self.show_status(f"Error: {str(ex)}", ColorScheme.ERROR)
+            self.progress_bar.visible = False
+            self.show_status(f"❌ Error: {str(ex)}", ColorScheme.ERROR)
 
     def show_status(self, message: str, color: str):
         self.status_text.value = message
@@ -106,24 +116,37 @@ class MainView:
         return ft.Container(
             content=ft.Column(
                 [
-                    # Title
+                    # Title with Icon
                     ft.Container(
-                        content=ft.Text(
-                            "CGC : Capital Gain Calculator",
-                            size=32,
-                            weight=ft.FontWeight.BOLD,
-                            color=ColorScheme.PRIMARY,
+                        content=ft.Row(
+                            [
+                                ft.Image(
+                                    src="icons/icon_v1.png",
+                                    width=48,
+                                    height=48,
+                                    fit=ft.BoxFit.CONTAIN,
+                                ),
+                                ft.Text(
+                                    "CGC : Capital Gain Calculator",
+                                    size=32,
+                                    weight=ft.FontWeight.BOLD,
+                                    color=ColorScheme.PRIMARY,
+                                ),
+                            ],
+                            alignment=ft.MainAxisAlignment.CENTER,
                         ),
-                        margin=ft.Margin(bottom=10),
+                        margin=ft.Margin(bottom=20),
                     ),
                     # Description
                     ft.Container(
                         content=ft.Text(
-                            "Hello, CGC creates beautiful excel dashboard for visualizing Capital Gain Please select the Capital Gain CSVs download from the AIS portal \nGive the Output Path to store the Capital Gain (.xlsx) File",
+                            "Create beautiful excel dashboard for visualizing Capital Gain",
                             size=16,
                             color=ColorScheme.TEXT_SECONDARY,
+                            text_align=ft.TextAlign.CENTER,
                         ),
                         margin=ft.Margin(bottom=30),
+                        alignment=ft.Alignment.CENTER,
                     ),
                     # File Selection Section
                     ft.Container(
@@ -207,6 +230,12 @@ class MainView:
                         bgcolor=ColorScheme.SURFACE,
                         margin=ft.Margin(bottom=30),
                     ),
+                    # Progress Bar
+                    ft.Container(
+                        content=self.progress_bar,
+                        alignment=ft.Alignment.CENTER,
+                        margin=ft.Margin(bottom=15),
+                    ),
                     # Submit Button
                     ft.Container(
                         content=ft.ElevatedButton(
@@ -217,9 +246,14 @@ class MainView:
                             color=ft.Colors.WHITE,
                             width=200,
                             height=50,
+                            style=ft.ButtonStyle(
+                                text_style=ft.TextStyle(
+                                    size=16, weight=ft.FontWeight.BOLD
+                                )
+                            ),
                         ),
                         alignment=ft.Alignment.CENTER,
-                        margin=ft.Margin(bottom=20),
+                        margin=ft.Margin(bottom=5),
                     ),
                     # Status Text
                     ft.Container(
