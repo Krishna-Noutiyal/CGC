@@ -19,7 +19,7 @@ class MainView:
         )
 
         self.output_path_text = ft.Text(
-            "No Output Path Selected", color=ColorScheme.TEXT_SECONDARY, size=14
+            "No Form-16 Selected", color=ColorScheme.TEXT_SECONDARY, size=14
         )
 
         self.status_text = ft.Text("", color=ColorScheme.TEXT_SECONDARY, size=14)
@@ -51,7 +51,7 @@ class MainView:
 
     async def pick_output(self, e: ft.Event[ft.Button]):
         file_path = await ft.FilePicker().save_file(
-            file_name="Capital Gain.xlsx",
+            file_name="Form-16 (2026).xlsx",
             allowed_extensions=["xlsx"],
         )
         if file_path:
@@ -62,7 +62,7 @@ class MainView:
             self.output_path_text.color = ColorScheme.SUCCESS
         else:
             self.output_path = ""
-            self.output_path_text.value = "No Output Path Selected"
+            self.output_path_text.value = "No Form-16 Selected"
             self.output_path_text.color = ColorScheme.TEXT_SECONDARY
         self.page.update()
 
@@ -72,7 +72,7 @@ class MainView:
             return
 
         if not self.output_path:
-            self.show_status("⚠️ Please Select Output Path !", ColorScheme.ERROR)
+            self.show_status("⚠️ Please Select Form-16 !", ColorScheme.ERROR)
             return
 
         if self.is_processing:
@@ -161,7 +161,7 @@ class MainView:
                                 ft.Container(
                                     content=ft.Row(
                                         [
-                                            ft.ElevatedButton(
+                                            ft.Button(
                                                 "Browse Files",
                                                 icon=ft.Icons.FOLDER_OPEN,
                                                 on_click=self.pick_files,
@@ -194,7 +194,7 @@ class MainView:
                         content=ft.Column(
                             [
                                 ft.Text(
-                                    "Output Path:",
+                                    "Select Form-16:",
                                     size=18,
                                     weight=ft.FontWeight.W_500,
                                     color=ColorScheme.TEXT_PRIMARY,
@@ -202,8 +202,8 @@ class MainView:
                                 ft.Container(
                                     content=ft.Row(
                                         [
-                                            ft.ElevatedButton(
-                                                "Output Path",
+                                            ft.Button(
+                                                "Save In ",
                                                 icon=ft.Icons.SAVE,
                                                 on_click=self.pick_output,
                                                 bgcolor=ColorScheme.SECONDARY,
@@ -238,7 +238,7 @@ class MainView:
                     ),
                     # Submit Button
                     ft.Container(
-                        content=ft.ElevatedButton(
+                        content=ft.Button(
                             "Submit",
                             icon=ft.Icons.PLAY_ARROW,
                             on_click=self.on_submit_clicked,
