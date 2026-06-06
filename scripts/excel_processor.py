@@ -267,7 +267,7 @@ class ExcelProcessor:
 
             # Short Term Tax (E2:F3 merged)
             ws.merge_cells("E2:F3")
-            ws["E2"] = "=ROUNDDOWN(IF(C3*0.2<0,0,C3*0.2),0)"
+            ws["E2"] = "=ROUND(IF(C3*0.2<0,0,C3*0.2),0)"
             self._apply_style(ws["E2"], formats["black_h"])
 
             """ ##################### LONG TERM VALUES ##################### """
@@ -285,7 +285,7 @@ class ExcelProcessor:
 
             # Long Term Tax (E5:F7 merged)
             ws.merge_cells("E5:F6")
-            ws["E5"] = "=ROUNDDOWN(IF(C6<=125000,0,(C6-125000)*0.125),0)"
+            ws["E5"] = "=ROUND(IF(C6<=125000,0,(C6-125000)*0.125),0)"
             self._apply_style(ws["E5"], formats["black_h"])
 
             """ ##################### GRAND TOTAL OF TAX ##################### """
@@ -319,6 +319,8 @@ class ExcelProcessor:
             # Create a new worksheet for the raw DataFrame
             self._create_worksheet("Capital Gains Data", 1)
             self._set_cell_dimensions(width=26)
+
+            # Capital Gains Data Worksheet
             data_ws = self._ws()
             data_formats = self._add_formats()
 
@@ -364,18 +366,25 @@ class ExcelProcessor:
 
             for col_num, _ in enumerate(self.df.columns, start=1):
                 col_letter = get_column_letter(col_num)
-                cell = data_ws.cell(
-                    row=total_row,
-                    column=col_num,
-                    value=f"=SUM({col_letter}2:{col_letter}{len(self.df) + 1})",
-                )
-                self._apply_style(cell, data_formats["green_h"])
+
+                if col_letter >= "F":
+                    cell = data_ws.cell(
+                        row=total_row,
+                        column=col_num,
+                        value=f"=SUM({col_letter}2:{col_letter}{len(self.df) + 1})",
+                    )
+                    data_ws.row_dimensions[total_row].height = 50
+                    self._apply_style(cell, data_formats["green_hh"])
 
             # "Total" label in the first column
+            data_ws.merge_cells(
+                start_row=total_row, start_column=1, end_row=total_row, end_column=5
+            )
             total_label = data_ws.cell(row=total_row, column=1, value="Total")
-            self._apply_style(total_label, data_formats["grey_h"])
+            self._apply_style(total_label, data_formats["grey_hh"])
 
             assert self.workbook is not None
+            self.workbook.active = self.workbook["Capital Gains"]
             self.workbook.save(file_path)
             return True
         except Exception as e:
