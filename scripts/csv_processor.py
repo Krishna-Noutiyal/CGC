@@ -18,15 +18,29 @@ class CSVProcessor:
 
     def combine_csvs(self, file_paths: List[str]) -> pd.DataFrame:
         """
-        Combines multiple CSV files into a single CSV file.
-        Skips the first row and uses the second row as headers.
+        Combine multiple CSV files into a single DataFrame.
+        Each file is read with the first row skipped and the second row used as headers.
+        Only rows with an "Active" Status are retained, and numeric columns are cleaned
+        and converted before concatenating all files.
 
         Args:
-            file_paths: List of paths to CSV files to combine
-            output_path: Path where the combined CSV should be saved
+            file_paths: List of CSV file paths to combine.
 
         Returns:
-            pd.DataFrame: Combined DataFrame if successful, empty DataFrame otherwise
+            pd.DataFrame: Combined DataFrame if successful, otherwise an empty DataFrame.
+
+                pd.DataFrame structure (column order):
+                ```
+                    Security Name (Security Code)
+                    Date of Sale/Transfer
+                    Asset Type
+                    Status
+                    Data From
+                    Quantity
+                    Sales Consideration
+                    Cost of Acquisition
+                    Sell - Cost
+                ```
         """
 
         if not file_paths:
@@ -100,7 +114,19 @@ class CSVProcessor:
             print(f"Total data rows: {len(combined_df)}")
             print(f"Total columns: {len(combined_df.columns)}")
 
-            self.combined_df = combined_df
+            updated_header = [
+                "Security Name (Security Code)",
+                "Date of Sale/Transfer",
+                "Asset Type",
+                "Status",
+                "Data From",
+                "Quantity",
+                "Sales Consideration",
+                "Cost of Acquisition",
+                "Sell - Cost",
+            ]
+
+            self.combined_df = combined_df[updated_header]
 
             return self.combined_df
 
