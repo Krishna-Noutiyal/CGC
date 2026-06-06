@@ -1,13 +1,33 @@
 ;aiu;
 
-[Update]
+[Update v2.2.0]
+Name = CGC
+ProductVersion = 2.2.0.0
+URL = https://github.com/Krishna-Noutiyal/CGC/releases/download/v2.2.0/CGC.v2.2.0.exe
+Size = 47886008
+ReleaseDate = 06/06/2026
+SHA256 = BAEA7C0C533574B0870A2A4873D9B1318CDD7585BAD529794C6CE20A9393D81A
+MD5 = 58961ae1603f9f7789312ff238b9d0de
+ServerFileName = CGC v2.2.0.exe
+Flags = Critical|NoCache|Os64
+RegistryKey = HKUD\Software\Krish\CGC\Version
+Version = 2.2.0.0
+UpdatedApplications = CGC[1.0-2.1]
+Description = This new updates Improves the dashboard and uses `Round` insted of `RoundDown` in excel Dashboard.
+Description1 = The "Capital Gains Data" worksheet has also been updated for better visuals.
+Enhancement = refactor(CSVProcessor): Improved The Arrangement of Combined CSV data for better understanding.
+BugFix = - fix(MainView): Update output path references to Form-16 for clarity
+BugFix1 = - fix(ExcelProcessor): Replace ROUNDDOWN with ROUND for tax calculations and improve formatting in Capital Gains Data worksheet
+AutoCloseApplication = [APPDIR]CGC.exe
+
+[Update v2.1.0]
 Name = CGC
 ProductVersion = 2.1.0.0
 URL = https://github.com/Krishna-Noutiyal/CGC/releases/download/v2.1.0/CGC.v2.1.0.exe
-Size = 47886264
+Size = 47886192
 ReleaseDate = 05/06/2026
-SHA256 = 8C1E9D3E40363288AB4813745690DF8CE6BF2E09F9ECB331D5B2605942BF001D
-MD5 = d34d4cccfc60176647fb00841536fbb4
+SHA256 = 1CF64433A74E5CA2CD13C10750FDAB78ED92244A31DF52C159883DADB62E96EA
+MD5 = b75da0add5b486726a62465aa2b89c13
 ServerFileName = CGC v2.1.0.exe
 Flags = Critical|NoCache|Os64
 RegistryKey = HKUD\Software\Krish\CGC\Version

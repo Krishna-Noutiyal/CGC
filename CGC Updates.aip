@@ -4,19 +4,35 @@
     <ROW Path="&lt;AI_DICTS&gt;aiu-ue.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.UpdaterEditorComponent">
-    <ROW Section="Update" Key="Name" Value="CGC"/>
-    <ROW Section="Update" Key="ProductVersion" Value="2.1.0.0" ValueLocId="-"/>
-    <ROW Section="Update" Key="URL" Value="https://github.com/Krishna-Noutiyal/CGC/releases/download/v2.1.0/CGC.v2.1.0.exe" ValueLocId="-"/>
-    <ROW Section="Update" Key="Size" Value="release\CGC v2.1.0.exe" ValueLocId="-"/>
-    <ROW Section="Update" Key="ReleaseDate" Value="23749" ValueLocId="-"/>
-    <ROW Section="Update" Key="SHA256" Value="release\CGC v2.1.0.exe" ValueLocId="-"/>
-    <ROW Section="Update" Key="MD5" Value="release\CGC v2.1.0.exe" ValueLocId="-"/>
-    <ROW Section="Update" Key="ServerFileName" Value="CGC v2.1.0.exe" ValueLocId="-"/>
-    <ROW Section="Update" Key="Flags" Value="Critical|NoCache|Os64" ValueLocId="-"/>
-    <ROW Section="Update" Key="RegistryKey" Value="HKUD\Software\Krish\CGC\Version" ValueLocId="-"/>
-    <ROW Section="Update" Key="Version" Value="2.1.0.0" ValueLocId="-"/>
-    <ROW Section="Update" Key="UpdatedApplications" Value="CGC[1.0-2.1)" ValueLocId="-"/>
-    <ROW Section="Update" Key="AutoCloseApplication" Value="[APPDIR]CGC.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.1.0" Key="Name" Value="CGC"/>
+    <ROW Section="Update v2.1.0" Key="ProductVersion" Value="2.1.0.0" ValueLocId="-"/>
+    <ROW Section="Update v2.1.0" Key="URL" Value="https://github.com/Krishna-Noutiyal/CGC/releases/download/v2.1.0/CGC.v2.1.0.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.1.0" Key="Size" Value="release\CGC v2.1.0.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.1.0" Key="ReleaseDate" Value="23749" ValueLocId="-"/>
+    <ROW Section="Update v2.1.0" Key="SHA256" Value="release\CGC v2.1.0.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.1.0" Key="MD5" Value="release\CGC v2.1.0.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.1.0" Key="ServerFileName" Value="CGC v2.1.0.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.1.0" Key="Flags" Value="Critical|NoCache|Os64" ValueLocId="-"/>
+    <ROW Section="Update v2.1.0" Key="RegistryKey" Value="HKUD\Software\Krish\CGC\Version" ValueLocId="-"/>
+    <ROW Section="Update v2.1.0" Key="Version" Value="2.1.0.0" ValueLocId="-"/>
+    <ROW Section="Update v2.1.0" Key="UpdatedApplications" Value="CGC[1.0-2.1)" ValueLocId="-"/>
+    <ROW Section="Update v2.1.0" Key="AutoCloseApplication" Value="[APPDIR]CGC.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.2.0" Key="Name" Value="CGC"/>
+    <ROW Section="Update v2.2.0" Key="ProductVersion" Value="2.2.0.0" ValueLocId="-"/>
+    <ROW Section="Update v2.2.0" Key="URL" Value="https://github.com/Krishna-Noutiyal/CGC/releases/download/v2.2.0/CGC.v2.2.0.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.2.0" Key="Size" Value="release\CGC v2.2.0.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.2.0" Key="ReleaseDate" Value="23750" ValueLocId="-"/>
+    <ROW Section="Update v2.2.0" Key="SHA256" Value="release\CGC v2.2.0.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.2.0" Key="MD5" Value="release\CGC v2.2.0.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.2.0" Key="ServerFileName" Value="CGC v2.2.0.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.2.0" Key="Flags" Value="Critical|NoCache|Os64" ValueLocId="-"/>
+    <ROW Section="Update v2.2.0" Key="RegistryKey" Value="HKUD\Software\Krish\CGC\Version" ValueLocId="-"/>
+    <ROW Section="Update v2.2.0" Key="Version" Value="2.2.0.0" ValueLocId="-"/>
+    <ROW Section="Update v2.2.0" Key="UpdatedApplications" Value="CGC[1.0-2.1]" ValueLocId="-"/>
+    <ROW Section="Update v2.2.0" Key="Description" Value="This new updates Improves the dashboard and uses `Round` insted of `RoundDown` in excel Dashboard.&#13;&#10;The &quot;Capital Gains Data&quot; worksheet has also been updated for better visuals."/>
+    <ROW Section="Update v2.2.0" Key="Enhancement" Value="refactor(CSVProcessor): Improved The Arrangement of Combined CSV data for better understanding."/>
+    <ROW Section="Update v2.2.0" Key="BugFix" Value="&#13;&#10;- fix(MainView): Update output path references to Form-16 for clarity&#13;&#10;&#13;&#10;- fix(ExcelProcessor): Replace ROUNDDOWN with ROUND for tax calculations and improve formatting in Capital Gains Data worksheet"/>
+    <ROW Section="Update v2.2.0" Key="AutoCloseApplication" Value="[APPDIR]CGC.exe" ValueLocId="-"/>
     <ATTRIBUTE name="OutputFileName" value="updates.txt"/>
     <ATTRIBUTE name="OutputFolder" value="."/>
   </COMPONENT>
