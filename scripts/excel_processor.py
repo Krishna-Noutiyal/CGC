@@ -384,6 +384,8 @@ class ExcelProcessor:
             self._apply_style(total_label, data_formats["grey_hh"])
 
             assert self.workbook is not None
+            for ws in self.workbook.worksheets:
+                ws.sheet_view.tabSelected = None
             self.workbook.active = self.workbook["Capital Gains"]
             self.workbook.save(file_path)
             return True
