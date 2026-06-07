@@ -1,13 +1,28 @@
 ;aiu;
 
+[Update v2.2.1]
+Name = CGC
+ProductVersion = 2.2.1.0
+URL = https://github.com/Krishna-Noutiyal/CGC/releases/download/v2.2.1/CGC.v2.2.1.exe
+Size = 47888336
+ReleaseDate = 06/06/2026
+SHA256 = B969E59998C9A2280C7475B86DBD4FCAE04C5E471C03B5BAE1CA5854D1F0DCAD
+MD5 = 7716fcb458e65b570eb0baee8ac9d9bf
+ServerFileName = CGC v2.2.1.exe
+Flags = NoCache|Os64
+RegistryKey = HKUD\Software\Krish\CGC\Version
+Version = 2.2.1.0
+UpdatedApplications = CGC[1.0-2.2]
+AutoCloseApplication = [APPDIR]CGC.exe
+
 [Update v2.2.0]
 Name = CGC
 ProductVersion = 2.2.0.0
 URL = https://github.com/Krishna-Noutiyal/CGC/releases/download/v2.2.0/CGC.v2.2.0.exe
-Size = 47886008
+Size = 47887480
 ReleaseDate = 06/06/2026
-SHA256 = BAEA7C0C533574B0870A2A4873D9B1318CDD7585BAD529794C6CE20A9393D81A
-MD5 = 58961ae1603f9f7789312ff238b9d0de
+SHA256 = BA52465CC8C9B0E825785E81AF366BBEF98823C9C206B7177BFACC9A96AC5EFC
+MD5 = 30fd8ec32e23ee4697e4b342c30f491b
 ServerFileName = CGC v2.2.0.exe
 Flags = Critical|NoCache|Os64
 RegistryKey = HKUD\Software\Krish\CGC\Version

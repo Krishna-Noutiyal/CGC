@@ -33,6 +33,19 @@
     <ROW Section="Update v2.2.0" Key="Enhancement" Value="refactor(CSVProcessor): Improved The Arrangement of Combined CSV data for better understanding."/>
     <ROW Section="Update v2.2.0" Key="BugFix" Value="&#13;&#10;- fix(MainView): Update output path references to Form-16 for clarity&#13;&#10;&#13;&#10;- fix(ExcelProcessor): Replace ROUNDDOWN with ROUND for tax calculations and improve formatting in Capital Gains Data worksheet"/>
     <ROW Section="Update v2.2.0" Key="AutoCloseApplication" Value="[APPDIR]CGC.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.2.1" Key="Name" Value="CGC"/>
+    <ROW Section="Update v2.2.1" Key="ProductVersion" Value="2.2.1.0" ValueLocId="-"/>
+    <ROW Section="Update v2.2.1" Key="URL" Value="https://github.com/Krishna-Noutiyal/CGC/releases/download/v2.2.1/CGC.v2.2.1.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.2.1" Key="Size" Value="release\CGC v2.2.1.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.2.1" Key="ReleaseDate" Value="23750" ValueLocId="-"/>
+    <ROW Section="Update v2.2.1" Key="SHA256" Value="release\CGC v2.2.1.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.2.1" Key="MD5" Value="release\CGC v2.2.1.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.2.1" Key="ServerFileName" Value="CGC v2.2.1.exe" ValueLocId="-"/>
+    <ROW Section="Update v2.2.1" Key="Flags" Value="NoCache|Os64" ValueLocId="-"/>
+    <ROW Section="Update v2.2.1" Key="RegistryKey" Value="HKUD\Software\Krish\CGC\Version" ValueLocId="-"/>
+    <ROW Section="Update v2.2.1" Key="Version" Value="2.2.1.0" ValueLocId="-"/>
+    <ROW Section="Update v2.2.1" Key="UpdatedApplications" Value="CGC[1.0-2.2]" ValueLocId="-"/>
+    <ROW Section="Update v2.2.1" Key="AutoCloseApplication" Value="[APPDIR]CGC.exe" ValueLocId="-"/>
     <ATTRIBUTE name="OutputFileName" value="updates.txt"/>
     <ATTRIBUTE name="OutputFolder" value="."/>
   </COMPONENT>
